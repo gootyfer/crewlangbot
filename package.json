@@ -1,0 +1,19 @@
+{
+  "name": "crewlangbot",
+  "version": "1.0.0",
+  "description": "Backend for the crew lang bot",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "bot",
+    "telegram",
+    "language"
+  ],
+  "author": "Crewlang crew",
+  "license": "ISC",
+  "dependencies": {
+    "telegram-node-bot": "^3.0.10"
+  }
+}
