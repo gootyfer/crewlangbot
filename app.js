@@ -17,6 +17,11 @@ function saveUserLanguage(id, language){
   storage.setItemSync('users',users)
 }
 
+function getUsers(){
+  storage.initSync()
+  return storage.getItemSync('users') || []
+}
+
 class StartController extends TelegramBaseController {
     /**
      * @param {Scope} $
@@ -70,9 +75,10 @@ class AnswerController extends TelegramBaseController {
      * @param {Scope} $
      */
     handle($) {
-        tg.api.sendMessage($.query.chatId, `El resultado de tu traducción es ${$.query.answer}`);
+        tg.api.sendMessage($.query.chatId, `El resultado de tu traducción es`);
+        tg.api.sendMessage($.query.chatId, $.query.answer);
 
-        $.sendMessage('Gracias por tu ayuda')
+        $.sendMessage('Gracias por tu ayuda, James')
     }
 
 }
@@ -83,6 +89,20 @@ class HelpController extends TelegramBaseController {
      */
     handle($) {
         $.sendMessage('Escribe "Como se dice " y el texto que quieres traducir')
+    }
+
+}
+
+class BroadcastController extends TelegramBaseController {
+    /**
+     * @param {Scope} $
+     */
+
+    handle($) {
+      let message = "Si te ha gustado CrewLang, copia este enlace y compártelo por Dios telegram.me/crewLangBot"
+      const users = getUsers()
+      users.forEach(user => {tg.api.sendMessage(user.id, message);});
+      $.sendMessage('Spam enviado')
     }
 
 }
@@ -152,4 +172,5 @@ tg.router
     .when('/enviar :answer :chatId', new AnswerController())
     .when('/listusers', new ListUsersController())
     .when('/resetusers', new ResetController())
+    .when('/sendall', new BroadcastController())
     .otherwise(new OtherwiseController())
