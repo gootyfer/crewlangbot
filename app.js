@@ -66,6 +66,7 @@ class QuestionReceivingController extends TelegramBaseController {
       const usersToQuery = users.filter(user => user.language === '🇨🇳')
       usersToQuery.forEach(user => tg.api.sendMessage(user.id, `¿Podrías traducir ${phrase} para ${$.message.from.id}?`));
 
+      console.log($)
       $.sendMessage('Estamos preguntando a nuestros traductores chinos cómo se dice '+phrase)
     }
 }
@@ -159,7 +160,7 @@ class OtherwiseController extends TelegramBaseController {
      * @param {Scope} $
      */
     handle($) {
-        console.log($)
+        //console.log($)
         $.sendMessage('No te entiendo')
     }
 }
