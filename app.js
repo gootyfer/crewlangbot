@@ -5,6 +5,51 @@ const TelegramBaseController = Telegram.TelegramBaseController
 const tg = new Telegram.Telegram('248872666:AAEQD7X_s2hSzjpuhxegSJ1GhKotePTahdA')
 const storage = require('node-persist')
 
+function saveUserLanguage(id, language){
+  storage.initSync()
+  const users = storage.getItemSync('users') || []
+  if(!users.some(user => user.id===id)){
+    users.push({
+      id: id,
+      language: language
+    })
+  }
+  storage.setItemSync('users',users)
+}
+
+class StartController extends TelegramBaseController {
+    /**
+     * @param {Scope} $
+     */
+    handle($) {
+        const languages = [ '🇨🇳' , '🇪🇸'];
+        const form = {
+            language: {
+                q: '¿Qué idioma hablas? Usa 🇨🇳 o 🇪🇸',
+                error: 'Ese idioma áun no lo hablamos.',
+                validator: (message, callback) => {
+                    if(languages.includes(message.text)) {
+                        callback(true, message.text) //you must pass the result also
+                        return
+                    }
+                    callback(false)
+                }
+            }
+        }
+
+        $.runForm(form, (result) => {
+            saveUserLanguage($.message.from.id, result.language)
+            $.sendMessage('¡Perfecto! Ya puedes empezar a pedir traducciones.')
+            $.runMenu({
+              message: 'Ayuda',
+              'Ayuda': {
+                  resizeKeyboard: true
+              }
+          })
+        })
+    }
+}
+
 class QuestionReceivingController extends TelegramBaseController {
     /**
      * @param {Scope} $
@@ -16,7 +61,7 @@ class QuestionReceivingController extends TelegramBaseController {
       const usersToQuery = users.filter(user => user.language === '🇨🇳')
       usersToQuery.forEach(user => tg.api.sendMessage(user.id, `¿Podrías traducir ${phrase} para ${$.message.from.id}?`));
 
-      $.sendMessage('Estamos preguntando a chinos por la traducción de '+phrase)
+      $.sendMessage('Estamos preguntando a nuestros traductores chinos cómo se dice '+phrase)
     }
 }
 
@@ -25,10 +70,19 @@ class AnswerController extends TelegramBaseController {
      * @param {Scope} $
      */
     handle($) {
-        console.log($.query)
         tg.api.sendMessage($.query.chatId, `El resultado de tu traducción es ${$.query.answer}`);
 
         $.sendMessage('Gracias por tu ayuda')
+    }
+
+}
+
+class HelpController extends TelegramBaseController {
+    /**
+     * @param {Scope} $
+     */
+    handle($) {
+        $.sendMessage('Escribe "Como se dice " y el texto que quieres traducir')
     }
 
 }
@@ -91,7 +145,9 @@ class OtherwiseController extends TelegramBaseController {
 }
 
 tg.router
-    .when('/comosedice', new QuestionReceivingController())
+    .when('/start', new StartController())
+    .when('Como se dice', new QuestionReceivingController())
+    .when('Ayuda', new HelpController())
     .when('/miidioma :language', new LangSettingController())
     .when('/enviar :answer :chatId', new AnswerController())
     .when('/listusers', new ListUsersController())
