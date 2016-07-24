@@ -160,7 +160,6 @@ class OtherwiseController extends TelegramBaseController {
      * @param {Scope} $
      */
     handle($) {
-        //console.log($)
         $.sendMessage('No te entiendo')
     }
 }
