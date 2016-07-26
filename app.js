@@ -100,7 +100,7 @@ class BroadcastController extends TelegramBaseController {
      */
 
     handle($) {
-      let message = "Si te ha gustado CrewLang, copia este enlace y compártelo por Dios telegram.me/crewLangBot"
+      let message = "Si te ha gustado CrewLang, entra en crewlang.com y compártelo, por Dior"
       const users = getUsers()
       users.forEach(user => {tg.api.sendMessage(user.id, message);});
       $.sendMessage('Spam enviado')
